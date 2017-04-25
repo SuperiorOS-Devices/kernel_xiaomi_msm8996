@@ -112,6 +112,7 @@ static struct platform_device *msm_core_pdev;
 static struct cpu_activity_info activity[NR_CPUS];
 DEFINE_PER_CPU(struct cpu_pstate_pwr *, ptable);
 static struct cpu_pwr_stats cpu_stats[NR_CPUS];
+static uint32_t scaling_factor;
 ALLOCATE_2D_ARRAY(uint32_t);
 
 /*
@@ -1106,7 +1107,6 @@ static int msm_core_dev_probe(struct platform_device *pdev)
 		goto failed;
 
 #ifdef ENABLE_TSENS_SAMPLING
-	INIT_DEFERRABLE_WORK(&sampling_work, samplequeue_handle);
 	ret = msm_core_task_init(&pdev->dev);
 	if (ret)
 		goto failed;
@@ -1114,10 +1114,12 @@ static int msm_core_dev_probe(struct platform_device *pdev)
 	for_each_possible_cpu(cpu)
 		set_threshold(&activity[cpu]);
 
+	INIT_DEFERRABLE_WORK(&sampling_work, samplequeue_handle);
 	schedule_delayed_work(&sampling_work, msecs_to_jiffies(0));
 	pm_notifier(system_suspend_handler, 0);
 #endif
 	cpufreq_register_notifier(&cpu_policy, CPUFREQ_POLICY_NOTIFIER);
+	pm_notifier(system_suspend_handler, 0);
 	return 0;
 failed:
 	info = dev_get_drvdata(&pdev->dev);
