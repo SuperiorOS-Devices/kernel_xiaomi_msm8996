@@ -100,7 +100,7 @@ int msm_audio_effects_enable_extn(struct audio_client *ac,
 	if (effects->virtualizer.enable_flag)
 		q6asm_send_audio_effects_params(ac, (char *)&updt_params[0],
 					params_length);
-	memset(updt_params, 0, sizeof(updt_params));
+	memset(updt_params, 0, MAX_ENABLE_CMD_SIZE * sizeof(u32));
 	params_length = 0;
 	updt_params[0] = AUDPROC_MODULE_ID_BASS_BOOST;
 	updt_params[1] = AUDPROC_PARAM_ID_ENABLE;
@@ -110,7 +110,7 @@ int msm_audio_effects_enable_extn(struct audio_client *ac,
 	if (effects->bass_boost.enable_flag)
 		q6asm_send_audio_effects_params(ac, (char *)&updt_params[0],
 					params_length);
-	memset(updt_params, 0, sizeof(updt_params));
+	memset(updt_params, 0, MAX_ENABLE_CMD_SIZE * sizeof(u32));
 	params_length = 0;
 	updt_params[0] = AUDPROC_MODULE_ID_POPLESS_EQUALIZER;
 	updt_params[1] = AUDPROC_PARAM_ID_ENABLE;
@@ -276,7 +276,7 @@ int msm_audio_effects_virtualizer_handler(struct audio_client *ac,
 			break;
 		}
 	}
-	if (params_length && !msm_dts_eagle_is_hpx_on() && (rc == 0))
+	if (params_length && (rc == 0))
 		q6asm_send_audio_effects_params(ac, params,
 						params_length);
 	else
@@ -747,7 +747,7 @@ int msm_audio_effects_reverb_handler(struct audio_client *ac,
 			break;
 		}
 	}
-	if (params_length && !msm_dts_eagle_is_hpx_on() && (rc == 0))
+	if (params_length && (rc == 0))
 		q6asm_send_audio_effects_params(ac, params,
 						params_length);
 	else
@@ -883,7 +883,7 @@ int msm_audio_effects_bass_boost_handler(struct audio_client *ac,
 			break;
 		}
 	}
-	if (params_length && !msm_dts_eagle_is_hpx_on() && (rc == 0))
+	if (params_length && (rc == 0))
 		q6asm_send_audio_effects_params(ac, params,
 						params_length);
 	else
@@ -1223,7 +1223,7 @@ int msm_audio_effects_popless_eq_handler(struct audio_client *ac,
 			break;
 		}
 	}
-	if (params_length && !msm_dts_eagle_is_hpx_on() && (rc == 0))
+	if (params_length && (rc == 0))
 		q6asm_send_audio_effects_params(ac, params,
 						params_length);
 	else
