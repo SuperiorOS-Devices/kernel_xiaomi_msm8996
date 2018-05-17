@@ -649,6 +649,26 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
 KBUILD_CFLAGS	+= $(call cc-option,-fno-PIE)
 KBUILD_AFLAGS	+= $(call cc-option,-fno-PIE)
 
+# Some of those needed to disable annoying warning on GCC 7.x, 8.x
+KBUILD_CFLAGS 	+= $(call cc-disable-warning, maybe-uninitialized,) \
+		   $(call cc-disable-warning, unused-variable,) \
+		   $(call cc-disable-warning, unused-function,) \
+		   $(call cc-disable-warning, tautological-compare,) \
+		   $(call cc-disable-warning, return-local-addr,) \
+		   $(call cc-disable-warning, array-bounds,) \
+		   $(call cc-disable-warning, misleading-indentation,) \
+		   $(call cc-disable-warning, switch-unreachable,) \
+		   $(call cc-disable-warning, memset-elt-size,) \
+		   $(call cc-disable-warning, bool-operation,) \
+		   $(call cc-disable-warning, parentheses,) \
+		   $(call cc-disable-warning, bool-compare,) \
+		   $(call cc-disable-warning, duplicate-decl-specifier,) \
+		   $(call cc-disable-warning, stringop-overflow,) \
+		   $(call cc-disable-warning, discarded-array-qualifiers,) \
+		   $(call cc-disable-warning, attribute-alias,) \
+		   $(call cc-disable-warning, packed-not-aligned,) \
+		   $(call cc-disable-warning, sizeof-pointer-memaccess,)
+
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os) $(call cc-disable-warning,maybe-uninitialized,)
 else
