@@ -13919,7 +13919,7 @@ static struct kobj_attribute headphone_pa_gain_attribute =
 		headphone_pa_gain_store);
 
 struct snd_soc_codec *tfa98xx_codec_ptr;
-#include "tfa9891_genregs.h"
+#define TFA98XX_AUDIO_CTR                  0x06
 #define TO_FIXED(e) e
 static ssize_t speaker_gain_show(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
