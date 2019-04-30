@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
- * Copyright (C) 2018 XiaoMi, Inc.
-=======
 /* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
->>>>>>> 7e363b255da4beb87be2a15e8256639de14860b0
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -353,17 +349,15 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 		if (sp_make_afe_callback(data->payload, data->payload_size))
 			return -EINVAL;
 
-		wake_up(&this_afe.wait[data->token]);
+		if (afe_token_is_valid(data->token))
+			wake_up(&this_afe.wait[data->token]);
+		else
+			return -EINVAL;
 	} else if (data->opcode == ULTRASOUND_OPCODE) {
 		if (data->payload != NULL)
 			process_us_payload(data->payload);
 		else
 			pr_err("%s: payload == NULL !\n", __func__);
-
-		if (afe_token_is_valid(data->token))
-			wake_up(&this_afe.wait[data->token]);
-		else
-			return -EINVAL;
 	} else if (data->payload_size) {
 		uint32_t *payload;
 		uint16_t port_id = 0;
