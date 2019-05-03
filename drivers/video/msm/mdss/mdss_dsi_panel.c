@@ -23,8 +23,6 @@
 #include <linux/err.h>
 #include <linux/string.h>
 
-#include <linux/display_state.h>
-
 #include "mdss_dsi.h"
 #include "mdss_debug.h"
 #ifdef TARGET_HW_MDSS_HDMI
