@@ -42,7 +42,6 @@
 
 #ifdef CONFIG_CHARGE_CONTROL
 #include "charge_control.h"
-static bool recharge_able = 0;
 #endif
 
 /* Mask/Bit helpers */
@@ -948,11 +947,11 @@ static int get_prop_batt_status(struct smbchg_chip *chip)
 	}
 
 	if (reg & BAT_TCC_REACHED_BIT)
-		goto battery_full;
+		return POWER_SUPPLY_STATUS_FULL;
 
 	chg_inhibit = reg & CHG_INHIBIT_BIT;
 	if (chg_inhibit)
-		goto battery_full;
+		return POWER_SUPPLY_STATUS_FULL;
 
 	rc = smbchg_read(chip, &reg, chip->chgr_base + CHGR_STS, 1);
 	if (rc < 0) {
@@ -978,13 +977,6 @@ static int get_prop_batt_status(struct smbchg_chip *chip)
 out:
 	pr_smb_rt(PR_MISC, "CHGR_STS = 0x%02x\n", reg);
 	return status;
-
-battery_full:
-	if(trigger_full_charge){
-		vote(chip->battchg_suspend_votable, BATTCHG_USER_EN_VOTER, 1, 0);
-		finish_full_charge();
-	}
-	return POWER_SUPPLY_STATUS_FULL;
 }
 
 #define BAT_PRES_STATUS			0x08
@@ -1092,19 +1084,20 @@ static int get_prop_batt_capacity(struct smbchg_chip *chip)
 	}
 
 #ifdef CONFIG_CHARGE_CONTROL
-	if(!trigger_full_charge) {
-		if(unlikely(recharge_able && capacity <= recharge_at)) {
-			recharge_able = 0;
-			vote(chip->battchg_suspend_votable, BATTCHG_USER_EN_VOTER, 0, 0);
-		}
-		else if(unlikely(charge_limit && capacity >= charge_limit && get_prop_batt_status(chip) == POWER_SUPPLY_STATUS_CHARGING)) {
+	if(trigger_full_charge) {
+		if(get_prop_batt_status(chip) == POWER_SUPPLY_STATUS_FULL) {
 			vote(chip->battchg_suspend_votable, BATTCHG_USER_EN_VOTER, 1, 0);
-
-			if(full_charge_every)
-				count_charge();
-
-			recharge_able = 1;
+			finish_full_charge();
 		}
+	}
+	else if(unlikely(recharge_at && get_prop_batt_status(chip) == POWER_SUPPLY_STATUS_NOT_CHARGING && capacity <= recharge_at)) {
+		vote(chip->battchg_suspend_votable, BATTCHG_USER_EN_VOTER, 0, 0);
+	}
+	else if(unlikely(capacity >= charge_limit && get_prop_batt_status(chip) == POWER_SUPPLY_STATUS_CHARGING)) {
+		vote(chip->battchg_suspend_votable, BATTCHG_USER_EN_VOTER, 1, 0);
+
+		if(full_charge_every)
+			count_charge();
 	}
 #endif
 	return capacity;
@@ -2760,7 +2753,7 @@ static int set_fastchg_current_vote_cb(struct votable *votable,
 	return 0;
 }
 
-int smbchg_set_fastchg_current_user(struct smbchg_chip *chip,
+static int smbchg_set_fastchg_current_user(struct smbchg_chip *chip,
 							int current_ma)
 {
 	int rc = 0;
@@ -3930,16 +3923,6 @@ static int smbchg_config_chg_battery_type(struct smbchg_chip *chip)
 	 * Only configure from profile if fastchg-ma is not defined in the
 	 * charger device node.
 	 */
-#ifdef CONFIG_CHARGE_CONTROL
-	rc = vote(chip->fcc_votable, BATT_TYPE_FCC_VOTER, true,
-					maximum_qc_current);
-	if (rc < 0) {
-		dev_err(chip->dev,
-			"Couldn't vote for fastchg current rc=%d\n",
-			rc);
-		return rc;
-	}
-#else
 	if (!of_find_property(chip->spmi->dev.of_node,
 				"qcom,fastchg-current-ma", NULL)) {
 		rc = of_property_read_u32(profile_node,
@@ -3960,7 +3943,6 @@ static int smbchg_config_chg_battery_type(struct smbchg_chip *chip)
 			}
 		}
 	}
-#endif
 
 	return ret;
 }
@@ -8548,10 +8530,6 @@ static int smbchg_probe(struct spmi_device *spmi)
 		dev_err(&spmi->dev, "Unable to allocate memory\n");
 		return -ENOMEM;
 	}
-
-#ifdef CONFIG_CHARGE_CONTROL
-	chip_pointer = chip;
-#endif
 
 	chip->fcc_votable = create_votable("BATT_FCC",
 			VOTE_MIN,
