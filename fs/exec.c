@@ -1560,9 +1560,6 @@ static int do_execve_common(struct filename *filename,
 	if (retval < 0)
 		goto out;
 
-	/* exec_binprm can release file and it may be freed */
-	is_su = d_is_su(file->f_dentry);
-
 	retval = exec_binprm(bprm);
 	if (retval < 0)
 		goto out;
