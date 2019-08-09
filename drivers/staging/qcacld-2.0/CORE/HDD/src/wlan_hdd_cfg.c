@@ -4580,6 +4580,24 @@ REG_TABLE_ENTRY g_registry_table[] =
                 CFG_BTC_WLAN_COEX_TX_POWER_MIN,
                 CFG_BTC_WLAN_COEX_TX_POWER_MAX),
 
+#ifdef WMI_COEX_BTC_DUTYCYCLE
+   REG_VARIABLE(CFG_COEX_PAUSE_NAME,
+                WLAN_PARAM_Integer,
+                hdd_config_t, coex_btc_PauseDuration,
+                VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                CFG_COEX_PAUSE_DEFAULT,
+                CFG_COEX_PAUSE_MIN,
+                CFG_COEX_PAUSE_MAX),
+
+   REG_VARIABLE(CFG_COEX_UNPAUSE_NAME,
+                WLAN_PARAM_Integer,
+                hdd_config_t, coex_btc_UnPauseDuration,
+                VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                CFG_COEX_UNPAUSE_DEFAULT,
+                CFG_COEX_UNPAUSE_MIN,
+                CFG_COEX_UNPAUSE_MAX),
+#endif
+
    REG_VARIABLE(CFG_INFORM_BSS_RSSI_RAW_NAME, WLAN_PARAM_Integer,
                 hdd_config_t, inform_bss_rssi_raw,
                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
@@ -5464,9 +5482,18 @@ REG_TABLE_ENTRY g_registry_table[] =
 	REG_VARIABLE(CFG_IS_PER_CHAIN_STATS_ENABLED_NAME, WLAN_PARAM_Integer,
 		struct hdd_config, per_chain_stats_enabled,
 		VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
-		CFG_IS_SAE_ENABLED_DEFAULT,
-		CFG_IS_SAE_ENABLED_MIN,
-		CFG_IS_SAE_ENABLED_MAX),
+		CFG_IS_PER_CHAIN_STATS_ENABLED_DEFAULT,
+		CFG_IS_PER_CHAIN_STATS_ENABLED_MIN,
+		CFG_IS_PER_CHAIN_STATS_ENABLED_MAX),
+
+#ifdef WLAN_SMART_ANTENNA_FEATURE
+	REG_VARIABLE(CFG_SMART_ANTENNA_PARAM, WLAN_PARAM_Integer,
+		struct hdd_config, smart_antenna_cfg,
+		VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+		CFG_SMART_ANTENNA_PARAM_DEFAULT,
+		CFG_SMART_ANTENNA_PARAM_MIN,
+		CFG_SMART_ANTENNA_PARAM_MAX),
+#endif
 };
 
 
@@ -9147,6 +9174,14 @@ void hdd_set_btc_bt_wlan_interval(hdd_context_t *hdd_ctx)
 
         if (VOS_STATUS_SUCCESS != status)
                 hddLog(LOGE, "Fail to set pta coex");
+#endif
+
+
+#ifdef WMI_COEX_BTC_DUTYCYCLE
+       status = sme_set_btc_coex_dutycycle(config->coex_btc_PauseDuration,config->coex_btc_UnPauseDuration);
+
+        if (VOS_STATUS_SUCCESS != status)
+                hddLog(LOGE, "Fail to set coex PauseDuration");
 #endif
 
 }

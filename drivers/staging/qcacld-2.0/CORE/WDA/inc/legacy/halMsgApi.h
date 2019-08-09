@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1007,6 +1007,8 @@ typedef struct
      * by way of ignoring if using new host/old FW or old host/new FW since it is at the end of this struct
      */
     tSirMacAddr bssId;
+    uint8_t ssidHidden;
+    tSirMacSSid ssid;
 
     eHalStatus status;
 
@@ -1565,4 +1567,13 @@ struct hal_hpcs_pulse_params
     tANI_U32 pulse_width;
 };
 
+/**
+ * strcut hal_primary_params - Set primary peer
+ * @vdev_id: Vdev ID
+ * @bssid: MAC address for the primary peer
+ */
+struct hal_primary_params {
+	uint8_t session_id;
+	tSirMacAddr bssid;
+};
 #endif /* _HALMSGAPI_H_ */

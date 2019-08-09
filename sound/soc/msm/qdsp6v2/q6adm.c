@@ -1,4 +1,5 @@
 /* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2642,6 +2643,7 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 	pr_debug("%s:port %#x path:%d rate:%d mode:%d perf_mode:%d,topo_id %d\n",
 		 __func__, port_id, path, rate, channel_mode, perf_mode,
 		 topology);
+
 	if (topology == ADM_COPP_SPEAKER_MONO_PROTECT_TOPO) {
 		bit_width = 24;
 		rate = 48000;
@@ -3228,21 +3230,6 @@ int adm_close(int port_id, int perf_mode, int copp_idx)
 			}
 		}
 
-		if ((perf_mode == LEGACY_PCM_MODE) &&
-		    (this_adm.outband_memmap.paddr != 0) &&
-		    (atomic_read(
-			&this_adm.copp.topology[port_idx][copp_idx]) ==
-			ADM_CMD_COPP_OPEN_TOPOLOGY_ID_DTS_HPX)) {
-			atomic_set(&this_adm.mem_map_index, ADM_DTS_EAGLE);
-			ret = adm_memory_unmap_regions();
-			if (ret < 0) {
-				pr_err("%s: adm mem unmmap err %d",
-					__func__, ret);
-			} else {
-				atomic_set(&this_adm.mem_map_handles
-					   [ADM_DTS_EAGLE], 0);
-			}
-		}
 
 		if ((afe_get_port_type(port_id) == MSM_AFE_PORT_TYPE_TX) &&
 		    this_adm.sourceTrackingData.memmap.paddr) {
