@@ -5733,3 +5733,4 @@ acpi_handle usb_get_hub_port_acpi_handle(struct usb_device *hdev,
 	return ACPI_HANDLE(&hub->ports[port1 - 1]->dev);
 }
 #endif
+

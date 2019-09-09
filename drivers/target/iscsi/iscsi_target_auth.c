@@ -230,6 +230,7 @@ static int chap_server_compute_md5(
 	}
 
 	pr_debug("[server] Got CHAP_R=%s\n", chap_r);
+	chap_string_to_hex(client_digest, chap_r, strlen(chap_r));
 
 	tfm = crypto_alloc_hash("md5", 0, CRYPTO_ALG_ASYNC);
 	if (IS_ERR(tfm)) {
