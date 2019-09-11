@@ -1814,7 +1814,6 @@ endif
 
 endif
 endif
-endif
 
 ifeq ($(CONFIG_DPTRACE_ENABLE), y)
 CDEFINES += -DFEATURE_DPTRACE_ENABLE
