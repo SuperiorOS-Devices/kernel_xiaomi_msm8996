@@ -1,3 +1,4 @@
+EXTRA_CFLAGS += -DTFA98XX_GIT_VERSIONS=1
 
 obj-$(CONFIG_SND_SOC_TFA98XX) += snd-soc-tfa98xx.o
 

@@ -1,11 +1,13 @@
-/*
- * Copyright (C) 2014 NXP Semiconductors, All Rights Reserved.
+/* 
+ * Copyright (C) 2014-2020 NXP Semiconductors, All Rights Reserved.
+ * Copyright 2020 GOODIX 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  */
+
 
 /**\file
  *
@@ -70,6 +72,7 @@ struct tfa_device_ops {
 	enum Tfa98xx_Error (*set_mute)(struct tfa_device *tfa, int mute); /**< set mute */
 	enum Tfa98xx_Error (*faim_protect)(struct tfa_device *tfa, int state); /**< Protect FAIM from being corrupted  */
 	enum Tfa98xx_Error(*set_osc_powerdown)(struct tfa_device *tfa, int state); /**< Allow to change internal osc. gating settings */
+	enum Tfa98xx_Error(*update_lpm)(struct tfa_device *tfa, int state); /**< Allow to change lowpowermode settings */
 };
 
 /**
@@ -129,15 +132,17 @@ struct tfa_device {
 	int tfadsp_event; /**< enum tfadsp_event_en is for external registry */
 	int verbose; /**< verbosity level for debug print output */
 	enum tfa_state state;  /**< last known state or-ed with optional state_modifier */
-	struct nxpTfaContainer *cnt;/**< the loaded container file */
-	struct nxpTfaVolumeStepRegisterInfo *p_regInfo; /**< remember vstep for partial updates */
+	struct TfaContainer *cnt;/**< the loaded container file */
+	struct TfaVolumeStepRegisterInfo *p_regInfo; /**< remember vstep for partial updates */
 	int partial_enable; /**< enable partial updates */
 	void *data; /**< typically pointing to Linux driver structure owning this device */
 	int convert_dsp32; /**< convert 24 bit DSP messages to 32 bit */
 	int sync_iv_delay; /**< synchronize I/V delay at cold start */
 	int is_probus_device; /**< probus device: device without internal DSP */
+	int advance_keys_handling;
 	int needs_reset; /**< add the reset trigger for SetAlgoParams and SetMBDrc commands */
 	struct kmem_cache *cachep;	/**< Memory allocator handle */
+	char fw_itf_ver[4];          /* Firmware ITF version */
 };
 
 /**
